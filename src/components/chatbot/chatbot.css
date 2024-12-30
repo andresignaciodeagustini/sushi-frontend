@@ -1,0 +1,78 @@
+.chatbot-container {
+  height: 400px;
+  width: 400px;
+  float: right;
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column; /* Para que los mensajes y la caja de entrada estén alineados verticalmente */
+}
+
+.chatbot-box {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column; /* Asegura que los elementos dentro del contenedor se apilen verticalmente */
+  padding: 10px;
+}
+
+.chatbot-header {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center; /* Centra el título del chatbot */
+}
+
+.chatbot-header h2{
+  color: white;
+}
+
+.chatbot-messages {
+  flex-grow: 1;
+  max-height: 300px;
+  overflow-y: scroll;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Añadir espacio entre los mensajes */
+}
+
+.chatbot-message {
+  padding: 8px 12px;
+  margin: 5px;
+  display: inline-block;
+  border-radius: 10px;
+  max-width: 70%;
+  word-wrap: break-word; /* Para evitar que el texto se desborde */
+}
+
+.chatbot-message.user {
+  background-color: #0084ff;
+  color: white;
+  text-align: right;
+  align-self: flex-end; /* Alinea los mensajes del usuario a la derecha */
+}
+
+.chatbot-message.bot {
+  background-color: #e5e5e5;
+  color: black;
+  text-align: left;
+  align-self: flex-start; /* Alinea los mensajes del bot a la izquierda */
+}
+
+.chatbot-input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.chatbot-send-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #0084ff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
