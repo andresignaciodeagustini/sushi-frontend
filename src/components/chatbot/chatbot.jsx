@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import './Chatbot.css';
 import Card from '../card/card';
+import QuickReplies from '../quick-replies/QuickReplies'; // Asegúrate de importar el componente de respuestas rápidas
 
 export default function Chatbot() {
   const [messages, setMessages] = useState([]);
@@ -12,7 +13,6 @@ export default function Chatbot() {
   const updateMessages = (newMessage) => {
     setMessages((prevMessages) => {
       const updatedMessages = [...prevMessages, newMessage];
-      console.log("Mensajes actualizados:", updatedMessages);
       localStorage.setItem('chatMessages', JSON.stringify(updatedMessages));
       return updatedMessages;
     });
@@ -28,14 +28,11 @@ export default function Chatbot() {
       }
     };
 
-    console.log("Enviando mensaje al backend:", queryText);
     updateMessages(says);
-    setInput("");
+    setInput(""); // Limpiamos el input
 
     try {
-      console.log("Haciendo la solicitud POST al backend...");
       const res = await axios.post('http://localhost:5000/api/df_text_query', { text: queryText });
-      console.log("Respuesta del backend:", res.data);
 
       let textProcessed = false;
       let processedCards = false;
@@ -55,15 +52,12 @@ export default function Chatbot() {
 
       if (res.data.fulfillmentMessages) {
         res.data.fulfillmentMessages.forEach((message) => {
+          // Procesamiento de tarjetas
           if (message.payload && message.payload.fields && message.payload.fields.cards && !processedCards) {
-            console.log("Procesando tarjetas...");
-
             const cards = message.payload.fields.cards.listValue.values.map(item => ({
               header: item.structValue.fields.header.stringValue,
               description: item.structValue.fields.description.stringValue
             }));
-
-            console.log("Tarjetas procesadas:", cards);
 
             says = {
               speaks: 'bot',
@@ -73,19 +67,50 @@ export default function Chatbot() {
             };
             updateMessages(says);
             processedCards = true;
-          } else if (message.text && !textProcessed) {
+          }
+          // Respuestas rápidas
+          // Respuestas rápidas
+    else if (message.payload && message.payload.fields && message.payload.fields.quick_replies) {
+      const quickReplies = message.payload.fields.quick_replies.listValue.values.map(item => {
+        const text = item.structValue.fields.text ? item.structValue.fields.text.stringValue : '';
+        let payload = item.structValue.fields.payload ? item.structValue.fields.payload.stringValue : '';
+        let link = item.structValue.fields.link ? item.structValue.fields.link.stringValue : null; // Link si está presente
+
+        // Si no tiene payload o link, asignar valores predeterminados
+        if (!payload) {
+          payload = text;  // Asignar el texto como payload por defecto
+        }
+        if (!link) {
+          link = "http://www.defaultlink.com";  // Asignar un link por defecto si no existe
+        }
+
+        return {
+          title: text, // El texto que aparecerá en el botón
+          payload: payload, // El payload asociado con el botón
+          link: link // El link, si es que está presente
+        };
+      });
+
+      says = {
+        speaks: 'bot',
+        msg: {
+          quickReplies
+        }
+      };
+      updateMessages(says);
+    }
+          // Respuesta de texto
+          else if (message.text && !textProcessed) {
             const msgText = message.text.text[0];
-            if (msgText !== res.data.fulfillmentText) {
-              says = {
-                speaks: 'bot',
-                msg: {
-                  text: {
-                    text: msgText
-                  }
+            says = {
+              speaks: 'bot',
+              msg: {
+                text: {
+                  text: msgText
                 }
-              };
-              updateMessages(says);
-            }
+              }
+            };
+            updateMessages(says);
             textProcessed = true;
           }
         });
@@ -95,9 +120,14 @@ export default function Chatbot() {
     }
   };
 
+  const _handleQuickReplyPayload = (event, payload, text) => {
+    event.preventDefault();
+    event.stopPropagation();
+    df_text_query(text); // Llamada a la función df_text_query para procesar la respuesta rápida
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && input.trim()) {
-      console.log("Presionó Enter, enviando el mensaje:", input);
       df_text_query(input);
     }
   };
@@ -105,10 +135,8 @@ export default function Chatbot() {
   useEffect(() => {
     const savedMessages = localStorage.getItem('chatMessages');
     if (savedMessages) {
-      console.log("Cargando mensajes guardados:", savedMessages);
       setMessages(JSON.parse(savedMessages));
     } else if (!welcomeSent.current) {
-      console.log("Enviando mensaje de bienvenida al backend");
       df_text_query("¡Hola! ¿En qué puedo ayudarte hoy?");
       welcomeSent.current = true;
     }
@@ -130,23 +158,35 @@ export default function Chatbot() {
         <div className="chatbot-messages">
           {messages.map((message, index) => {
             if (message.msg.payload) {
-              console.log("Mensaje con tarjetas:", message.msg.payload);
               return (
                 <div key={index} className="chatbot-message bot">
                   <div className="card-panel">
-                    <div style={{ overflow: 'hidden' }}>
-                      <div className="col s2">
-                        <a href="/" className="btn-floating btn-large waves-effect waves-light red">{message.speaks}</a>
-                      </div>
-                      <div style={{ overflow: 'auto', overflowY: 'scroll' }}>
-                        <div style={{ height: 300, width: message.msg.payload.length * 270 }}>
-                          {message.msg.payload.map((card, i) => {
-                            console.log("Tarjeta que se pasa a Card:", card);
-                            return <Card key={i} payload={card} />;
-                          })}
-                        </div>
-                      </div>
+                    <div className="col s2">
+                      <a href="/" className="btn-floating btn-large waves-effect waves-light red">{message.speaks}</a>
                     </div>
+                    <div className="cards-container">
+                      {message.msg.payload.map((card, i) => (
+                        <Card key={i} payload={card} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            if (message.msg.quickReplies) {
+              return (
+                <div key={index} className="chatbot-message bot">
+                  <div className="quick-replies">
+                    {message.msg.quickReplies.map((reply, i) => (
+                      <button
+                        key={i}
+                        onClick={(event) => _handleQuickReplyPayload(event, reply.payload, reply.title)}
+                        className="quick-reply-button"
+                      >
+                        {reply.title}
+                      </button>
+                    ))}
                   </div>
                 </div>
               );
@@ -170,6 +210,9 @@ export default function Chatbot() {
           placeholder="Escribe un mensaje..."
           className="chatbot-input"
         />
+
+        {/* Renderizamos las respuestas rápidas aquí */}
+        <QuickReplies replyClick={_handleQuickReplyPayload} />
       </div>
     </div>
   );
