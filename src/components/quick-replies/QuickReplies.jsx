@@ -2,25 +2,26 @@ import PropTypes from 'prop-types';
 import QuickReply from '../quick-reply/QuickReply';  // Asegúrate de importar el componente QuickReply
 
 export default function QuickReplies({ replyClick, quickReplies = [], text }) {
-
   // Manejador de click para cada respuesta rápida
   const handleClick = (event, payload, replyText, link) => {
     event.preventDefault();
     event.stopPropagation();
-    
+
     if (link) {
-      // Si hay un link, lo abrimos en una nueva pestaña
+      // Si es un link, lo abrimos en una nueva pestaña
       window.open(link, "_blank");
+      
+      // No enviamos la respuesta al backend en caso de que sea un link
     } else {
-      // Si no hay link, llamamos a replyClick con el payload
-      replyClick(event, payload, replyText);  // Llama al callback con el payload y texto de la respuesta
+      // Si no es un link, llamamos a replyClick con el payload y texto de la respuesta
+      replyClick(event, payload, replyText);
     }
   };
 
   return (
     <div className="quick-replies">
-      {/* Renderizamos el texto si está presente */}
-      {text && <p>{text}</p>}
+      {/* Renderizamos el texto principal si está presente */}
+      {text && <p>{text}</p>} {/* Esto renderiza el texto "quieres informacion?" */}
 
       {/* Renderizamos cada respuesta rápida */}
       {quickReplies.map((reply, index) => (
@@ -38,10 +39,10 @@ QuickReplies.propTypes = {
   replyClick: PropTypes.func.isRequired,  // Función que maneja el clic
   quickReplies: PropTypes.arrayOf(
     PropTypes.shape({
-      payload: PropTypes.string.isRequired,
-      text: PropTypes.string.isRequired,
-      link: PropTypes.string,  // Puede tener un link (opcional)
+      payload: PropTypes.string.isRequired,  // Cada respuesta rápida tiene un payload
+      text: PropTypes.string.isRequired,     // Texto que se mostrará
+      link: PropTypes.string,                // Link opcional
     })
   ).isRequired,
-  text: PropTypes.string,  // El texto del mensaje (opcional)
+  text: PropTypes.string,  // Texto opcional para la pregunta o mensaje
 };
