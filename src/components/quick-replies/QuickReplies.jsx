@@ -8,10 +8,8 @@ export default function QuickReplies({ replyClick, quickReplies = [], text }) {
     event.stopPropagation();
 
     if (link) {
-      // Si es un link, lo abrimos en una nueva pestaña
-      window.open(link, "_blank");
-      
-      // No enviamos la respuesta al backend en caso de que sea un link
+      // Si es un link, no lo abrimos, sino que lo enviamos al chat
+      replyClick(event, link);  // Se envía el link como parte del flujo del chat
     } else {
       // Si no es un link, llamamos a replyClick con el payload y texto de la respuesta
       replyClick(event, payload, replyText);

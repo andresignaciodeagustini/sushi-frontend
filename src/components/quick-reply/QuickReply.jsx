@@ -5,20 +5,23 @@ const QuickReply = ({ reply, click }) => {
 
   const handleLinkClick = (e) => {
     e.preventDefault();
-    const link = reply?.structValue?.fields?.link?.stringValue;
+    const link = reply?.link; // Usamos el link directamente aquí
+
     if (link) {
-      window.open(link, '_self');  // Abre en la misma ventana
+      // No abrir en una nueva ventana, sino enviar el link al chat
+      click(e, null, null, link);  // Enviamos el link al chat
     }
   };
 
   return (
     <div className="quick-reply">
       {!reply.payload ? (
-        reply.structValue?.fields?.link?.stringValue ? (
+        reply.link ? (
+          // Si tiene un link, renderizamos un enlace clickable
           <a
-            href={reply.structValue.fields.link.stringValue}  // Usa la estructura completa
+            href={reply.link}
             className="quick-reply-link"
-            onClick={handleLinkClick}
+            onClick={handleLinkClick}  // Acción personalizada para enviar el link al chat
           >
             {replyText}
           </a>
@@ -40,13 +43,7 @@ QuickReply.propTypes = {
   reply: PropTypes.shape({
     text: PropTypes.string.isRequired,
     payload: PropTypes.string,
-    structValue: PropTypes.shape({
-      fields: PropTypes.shape({
-        link: PropTypes.shape({
-          stringValue: PropTypes.string,
-        }),
-      }),
-    }),
+    link: PropTypes.string,  // Aseguramos que puede tener un link
   }).isRequired,
   click: PropTypes.func.isRequired,
 };

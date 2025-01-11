@@ -2,14 +2,17 @@ import PropTypes from 'prop-types';
 import './Card.css';
 
 const Card = (props) => {
+  // Acceder directamente a header y description
+  const { header, description } = props.payload;
+
   console.log("Props recibidos en Card:", props);  // Log para verificar los props
 
   return (
     <div style={{ height: 270, paddingRight: 30, float: 'left' }}>
       <div className="card">
         <div className="card-content">
-          <span className="card-title">{props.payload.header || 'Sin título'}</span>
-          <p>{props.payload.description || 'Sin descripción'}</p>
+          <span className="card-title">{header || 'Sin título'}</span>
+          <p>{description || 'Sin descripción'}</p>
         </div>
       </div>
     </div>
@@ -18,8 +21,8 @@ const Card = (props) => {
 
 Card.propTypes = {
   payload: PropTypes.shape({
-    header: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
+    header: PropTypes.string,
+    description: PropTypes.string,
   }).isRequired,
 };
 

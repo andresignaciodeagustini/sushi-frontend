@@ -2,18 +2,28 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import './Chatbot.css';
 import Card from '../card/card';
-import QuickReplies from '../quick-replies/QuickReplies'; // Asegúrate de importar el componente de respuestas rápidas
+import QuickReplies from '../quick-replies/QuickReplies';
 
 export default function Chatbot() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
   const welcomeSent = useRef(false);
   const messagesEndRef = useRef(null);
+  const isMounted = useRef(true);  // Para evitar actualizaciones de estado después de que el componente se haya desmontado.
+
+  const toggleChatbot = () => {
+    setIsVisible(!isVisible);
+  };
 
   const updateMessages = (newMessage) => {
     setMessages((prevMessages) => {
       const updatedMessages = [...prevMessages, newMessage];
-      localStorage.setItem('chatMessages', JSON.stringify(updatedMessages));
+      try {
+        localStorage.setItem('chatMessages', JSON.stringify(updatedMessages)); 
+      } catch (error) {
+        console.error("Error al guardar los mensajes en localStorage:", error);
+      }
       return updatedMessages;
     });
   };
@@ -29,14 +39,12 @@ export default function Chatbot() {
     };
 
     updateMessages(says);
-    setInput(""); // Limpiamos el input
+    setInput("");
 
     try {
       const res = await axios.post('http://localhost:5000/api/df_text_query', { text: queryText });
-
-      let textProcessed = false;
-      let processedCards = false;
-
+      
+      let allMessages = [];
       if (res.data.fulfillmentText) {
         says = {
           speaks: 'bot',
@@ -46,15 +54,13 @@ export default function Chatbot() {
             }
           }
         };
-        updateMessages(says);
-        textProcessed = true;
+        allMessages.push(says);
       }
 
-      if (res.data.fulfillmentMessages) {
-        res.data.fulfillmentMessages.forEach((message) => {
-          // Procesamiento de tarjetas
-          if (message.payload && message.payload.fields && message.payload.fields.cards && !processedCards) {
-            const cards = message.payload.fields.cards.listValue.values.map(item => ({
+      if (res.data.payloads) {
+        res.data.payloads.forEach((payload) => {
+          if (payload.type === 'cards') {
+            const cards = payload.data.map(item => ({
               header: item.structValue.fields.header.stringValue,
               description: item.structValue.fields.description.stringValue
             }));
@@ -65,71 +71,48 @@ export default function Chatbot() {
                 payload: cards
               }
             };
-            updateMessages(says);
-            processedCards = true;
-          }
-
-          // Respuestas rápidas
-          else if (message.payload && message.payload.fields) {
-            // Verificamos si hay un campo `text` que es el mensaje principal
-            const mainText = message.payload.fields.text?.stringValue ?? ''; // Si no hay texto, asignamos un valor vacío
-          
-            // Extraemos las respuestas rápidas
-            const quickReplies = message.payload.fields.quick_replies?.listValue.values.map(item => {
-              const text = item.structValue.fields.text?.stringValue ?? '';  // Si no hay texto, asignamos ''
-              let payload = item.structValue.fields.payload?.stringValue ?? text;  // Si no hay payload, usar el texto
-              let link = item.structValue.fields.link?.stringValue ?? null;  // Link nulo si no está presente
-          
-              // Si no hay link, asignar un link por defecto (puedes ajustar esto según tus necesidades)
-              if (!link) {
-                link = "http://www.defaultlink.com";  // Asigna un link predeterminado si no existe
-              }
-          
+            allMessages.push(says);
+          } else if (payload.type === 'quick_replies') {
+            const quickReplies = payload.data.map(item => {
+              const text = item.structValue.fields.text.stringValue;
+              const payload = item.structValue.fields.payload?.stringValue ?? text;
+              const link = item.structValue.fields.link?.stringValue ?? "http://www.defaultlink.com";
               return {
-                title: text,  // El texto que aparecerá en el botón
-                payload: payload,  // El payload asociado con el botón
-                link: link  // El link, si es que está presente
+                title: text,
+                payload: payload,
+                link: link
               };
-            }) ?? [];
-          
-            // Estructuramos la respuesta para incluir tanto el texto principal como las respuestas rápidas
-            const says = {
-              speaks: 'bot',
-              msg: {
-                text: mainText,  // Aquí agregamos el texto principal (por ejemplo, "¿Quieres información?")
-                quickReplies: quickReplies  // Las respuestas rápidas
-              }
-            };
-          
-            // Actualizamos los mensajes con la respuesta generada
-            updateMessages(says); // En lugar de mostrar el texto del botón, simplemente enviamos las respuestas rápidas
-          }
+            });
 
-          // Respuesta de texto
-          else if (message.text && !textProcessed) {
-            const msgText = message.text.text[0];
-            const says = {
+            says = {
               speaks: 'bot',
               msg: {
-                text: {
-                  text: msgText
-                }
+                quickReplies: quickReplies
               }
             };
-            updateMessages(says);
-            textProcessed = true;
+            allMessages.push(says);
+          } else if (payload.type === 'text') {
+            says = {
+              speaks: 'bot',
+              msg: {
+                text: payload.data
+              }
+            };
+            allMessages.push(says);
           }
         });
       }
+
+      allMessages.forEach((message) => updateMessages(message));
     } catch (error) {
       console.error('Error al enviar el mensaje', error);
     }
   };
 
-  const _handleQuickReplyPayload = (event, payload,text) => {
+  const _handleQuickReplyPayload = async (event, payload, text) => {
     event.preventDefault();
     event.stopPropagation();
-    df_text_query(text); // Llamada a la función df_text_query para procesar la respuesta rápida
+    await df_text_query(text);
   };
 
   const handleKeyPress = (e) => {
@@ -139,13 +122,22 @@ export default function Chatbot() {
   };
 
   useEffect(() => {
+    isMounted.current = true;  // Marcar que el componente está montado
     const savedMessages = localStorage.getItem('chatMessages');
     if (savedMessages) {
-      setMessages(JSON.parse(savedMessages));
+      try {
+        setMessages(JSON.parse(savedMessages)); 
+      } catch (error) {
+        console.error("Error al parsear los mensajes de localStorage", error);
+      }
     } else if (!welcomeSent.current) {
       df_text_query("¡Hola! ¿En qué puedo ayudarte hoy?");
       welcomeSent.current = true;
     }
+
+    return () => {
+      isMounted.current = false;  // Marcar que el componente se desmontó
+    };
   }, []);
 
   useEffect(() => {
@@ -155,79 +147,76 @@ export default function Chatbot() {
   }, [messages]);
 
   return (
-    <div className="chatbot-container">
-      <div className="chatbot-box">
-        <div className="chatbot-header">
-          <h2>Chatbot</h2>
-        </div>
+    <div>
+      <button onClick={toggleChatbot} className="chatbot-toggle-button">
+        {isVisible ? 'Cerrar Chatbot' : 'Abrir Chatbot'}
+      </button>
 
-        <div className="chatbot-messages">
-  {messages.map((message, index) => {
-    // Si el mensaje tiene 'payload', se renderiza de forma especial
-    if (message.msg.payload) {
-      return (
-        <div key={index} className="chatbot-message bot">
-          <div className="card-panel">
-            <div className="col s2">
-              <a href="/" className="btn-floating btn-large waves-effect waves-light red">{message.speaks}</a>
+      {isVisible && (
+        <div className="chatbot-container">
+          <div className="chatbot-box">
+            <div className="chatbot-header">
+              <h2>Chatbot</h2>
             </div>
-            <div className="cards-container">
-              {message.msg.payload.map((card, i) => (
-                <Card key={i} payload={card} />
-              ))}
+
+            <div className="chatbot-messages">
+              {messages.map((message, index) => {
+                if (message.msg.payload) {
+                  return (
+                    <div key={index} className="chatbot-message bot">
+                      <div className="cards-container">
+                        {message.msg.payload.map((card, i) => (
+                          <Card key={i} payload={card} />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+
+                if (message.msg.quickReplies) {
+                  return (
+                    <div key={index} className="chatbot-message bot">
+                      <div className="message-text">
+                        {message.msg.text && <p>{message.msg.text}</p>}
+                      </div>
+                      <div className="quick-replies">
+                        {message.msg.quickReplies.map((reply, i) => (
+                          <button
+                            key={i}
+                            onClick={(event) => _handleQuickReplyPayload(event, reply.payload, reply.title)}
+                            className="quick-reply-button"
+                          >
+                            {reply.title}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={index}
+                    className={`chatbot-message ${message.speaks === "user" ? "user" : "bot"}`}
+                  >
+                    {message.msg.text ? message.msg.text.text : message.msg}
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
             </div>
+
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Escribe un mensaje..."
+              className="chatbot-input"
+            />
           </div>
         </div>
-      );
-    }
-
-    // Si el mensaje tiene 'quickReplies'
-    if (message.msg.quickReplies) {
-      return (
-        <div key={index} className="chatbot-message bot">
-          <div className="message-text">
-            {/* Asegúrate de que 'message.msg.text' existe antes de renderizar */}
-            {message.msg.text && <p>{message.msg.text}</p>} {/* Mostrar la pregunta antes de las respuestas rápidas */}
-          </div>
-          
-          <div className="quick-replies">
-            {message.msg.quickReplies.map((reply, i) => (
-              <button
-                key={i}
-                onClick={(event) => _handleQuickReplyPayload(event, reply.payload, reply.title, reply.link)}
-                className="quick-reply-button"
-              >
-                {reply.title}
-              </button>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    // Si no hay payload ni quickReplies, se muestra el mensaje simple
-    return (
-      <div key={index} className={`chatbot-message ${message.speaks === "user" ? "user" : "bot"}`}>
-        {message.msg.text ? message.msg.text.text : message.msg}
-      </div>
-    );
-  })}
-
-  <div ref={messagesEndRef} />
-</div>
-
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Escribe un mensaje..."
-          className="chatbot-input"
-        />
-
-        {/* Renderizamos las respuestas rápidas aquí */}
-        <QuickReplies replyClick={_handleQuickReplyPayload} />
-      </div>
+      )}
     </div>
   );
 }
