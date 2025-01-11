@@ -18,8 +18,8 @@ export default function QuickReplies({ replyClick, quickReplies = [], text }) {
 
   return (
     <div className="quick-replies">
-      {/* Renderizamos el texto principal si está presente */}
-      {text && <p>{text}</p>} {/* Esto renderiza el texto "quieres informacion?" */}
+      {/* Renderizamos el texto principal si está presente, o un mensaje predeterminado si no lo está */}
+      <p>{text || "No se recibió el mensaje"}</p>
 
       {/* Renderizamos cada respuesta rápida */}
       {quickReplies.map((reply, index) => (
@@ -42,5 +42,5 @@ QuickReplies.propTypes = {
       link: PropTypes.string,                // Link opcional
     })
   ).isRequired,
-  text: PropTypes.string,  // Texto opcional para la pregunta o mensaje
+  text: PropTypes.string.isRequired,  // Texto opcional para la pregunta o mensaje
 };

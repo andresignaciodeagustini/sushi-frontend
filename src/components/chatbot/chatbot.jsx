@@ -10,7 +10,7 @@ export default function Chatbot() {
   const [isVisible, setIsVisible] = useState(false);
   const welcomeSent = useRef(false);
   const messagesEndRef = useRef(null);
-  const isMounted = useRef(true);  // Para evitar actualizaciones de estado después de que el componente se haya desmontado.
+  const isMounted = useRef(true);
 
   const toggleChatbot = () => {
     setIsVisible(!isVisible);
@@ -32,9 +32,7 @@ export default function Chatbot() {
     let says = {
       speaks: 'user',
       msg: {
-        text: {
-          text: queryText
-        }
+        text: queryText
       }
     };
 
@@ -49,9 +47,7 @@ export default function Chatbot() {
         says = {
           speaks: 'bot',
           msg: {
-            text: {
-              text: res.data.fulfillmentText
-            }
+            text: res.data.fulfillmentText
           }
         };
         allMessages.push(says);
@@ -87,11 +83,13 @@ export default function Chatbot() {
             says = {
               speaks: 'bot',
               msg: {
-                quickReplies: quickReplies
+                quickReplies: quickReplies,
+                text: payload.text // Asegúrate de que `payload.text` contiene "¿Quieres información?"
               }
             };
             allMessages.push(says);
           } else if (payload.type === 'text') {
+            console.log('Payload de texto:', payload.data); // Verificar el contenido del texto
             says = {
               speaks: 'bot',
               msg: {
@@ -122,7 +120,7 @@ export default function Chatbot() {
   };
 
   useEffect(() => {
-    isMounted.current = true;  // Marcar que el componente está montado
+    isMounted.current = true;
     const savedMessages = localStorage.getItem('chatMessages');
     if (savedMessages) {
       try {
@@ -136,7 +134,7 @@ export default function Chatbot() {
     }
 
     return () => {
-      isMounted.current = false;  // Marcar que el componente se desmontó
+      isMounted.current = false;
     };
   }, []);
 
@@ -177,7 +175,7 @@ export default function Chatbot() {
                   return (
                     <div key={index} className="chatbot-message bot">
                       <div className="message-text">
-                        {message.msg.text && <p>{message.msg.text}</p>}
+                        {message.msg.text && <p>{typeof message.msg.text === 'string' ? message.msg.text : message.msg.text.text}</p>}
                       </div>
                       <div className="quick-replies">
                         {message.msg.quickReplies.map((reply, i) => (
@@ -194,14 +192,15 @@ export default function Chatbot() {
                   );
                 }
 
-                return (
-                  <div
-                    key={index}
-                    className={`chatbot-message ${message.speaks === "user" ? "user" : "bot"}`}
-                  >
-                    {message.msg.text ? message.msg.text.text : message.msg}
-                  </div>
-                );
+                if (message.msg.text) {
+                  return (
+                    <div key={index} className="chatbot-message bot">
+                      <p>{typeof message.msg.text === 'string' ? message.msg.text : message.msg.text.text}</p>
+                    </div>
+                  );
+                }
+
+                return null;
               })}
               <div ref={messagesEndRef} />
             </div>
