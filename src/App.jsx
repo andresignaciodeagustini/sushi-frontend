@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
-import Landing from './components/pages/Landing';
-import About from './components/pages/about'; 
+import Landing from './components/pages/landing/Landing';
+import About from './components/pages/about/about'; 
 import Shop from './components/shop/shop';   
 import Chatbot from "./components/chatbot/chatbot"; // Asegúrate de que la ruta y el nombre sean correctos
 

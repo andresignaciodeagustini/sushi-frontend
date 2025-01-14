@@ -1,78 +1,298 @@
-.chatbot-container {
-  height: 400px;
-  width: 400px;
-  float: right;
-  border: 1px solid #ccc;
-  display: flex;
-  flex-direction: column; /* Para que los mensajes y la caja de entrada estén alineados verticalmente */
+
+
+/* Contenedor principal */
+.chatbot-wrapper {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
 }
 
+/* Contenedor del chatbot */
+.chatbot-container {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 350px;
+  height: 500px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+}
+
+/* Caja principal del chatbot */
 .chatbot-box {
   height: 100%;
   width: 100%;
   display: flex;
-  flex-direction: column; /* Asegura que los elementos dentro del contenedor se apilen verticalmente */
+  flex-direction: column;
   padding: 10px;
 }
 
+/* Header del chatbot */
 .chatbot-header {
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 10px;
-  text-align: center; /* Centra el título del chatbot */
+  text-align: center;
+  background-color: #0084ff;
+  padding: 15px;
+  border-radius: 8px 8px 0 0;
 }
 
-.chatbot-header h2{
+.chatbot-header h2 {
   color: white;
+  margin: 0;
 }
 
+/* Contenedor de mensajes */
 .chatbot-messages {
   flex-grow: 1;
-  max-height: 300px;
-  overflow-y: scroll;
-  margin-bottom: 10px;
+  overflow-y: auto;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Añadir espacio entre los mensajes */
+  gap: 10px;
 }
 
+/* Estilos de los mensajes */
 .chatbot-message {
   padding: 8px 12px;
   margin: 5px;
-  display: inline-block;
   border-radius: 10px;
   max-width: 70%;
-  word-wrap: break-word; /* Para evitar que el texto se desborde */
+  word-wrap: break-word;
 }
 
 .chatbot-message.user {
   background-color: #0084ff;
   color: white;
-  text-align: right;
-  align-self: flex-end; /* Alinea los mensajes del usuario a la derecha */
+  align-self: flex-end;
 }
 
 .chatbot-message.bot {
   background-color: #e5e5e5;
   color: black;
-  text-align: left;
-  align-self: flex-start; /* Alinea los mensajes del bot a la izquierda */
+  align-self: flex-start;
+}
+
+/* Contenedor de input */
+.chatbot-input-container {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid #eee;
 }
 
 .chatbot-input {
-  width: 100%;
+  flex-grow: 1;
   padding: 8px;
-  border-radius: 5px;
   border: 1px solid #ccc;
+  border-radius: 20px;
+  outline: none;
 }
 
+/* Botón de enviar */
 .chatbot-send-button {
-  width: 100%;
-  padding: 10px;
+  padding: 8px 16px;
   background-color: #0084ff;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 20px;
   cursor: pointer;
-  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+.chatbot-send-button:hover {
+  background-color: #0073e6;
+}
+
+.chatbot-send-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Botón toggle del chatbot */
+.chatbot-toggle-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 15px 25px;
+  background-color: #0084ff;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chatbot-toggle-button:hover {
+  background-color: #0073e6;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Indicador de escritura */
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+}
+
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  background-color: #90949c;
+  border-radius: 50%;
+  animation: typing 1s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Punto pulsante */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+  position: relative;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.pulse-dot::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #4CAF50;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+/* Quick replies */
+.quick-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.quick-reply-button {
+  background-color: #0084ff;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.quick-reply-button:hover {
+  background-color: #0073e6;
+}
+
+/* Animaciones */
+@keyframes typing {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* Scrollbar personalizado */
+.chatbot-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chatbot-messages::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .chatbot-container {
+    width: 90%;
+    height: 80vh;
+    bottom: 70px;
+    right: 5%;
+  }
+
+  .chatbot-toggle-button {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+  
+  .chatbot-input-container {
+    padding: 8px;
+  }
+  
+  .chatbot-send-button {
+    padding: 6px 12px;
+  }
+}
+
+/* Estilos para dispositivos muy pequeños */
+@media (max-width: 480px) {
+  .chatbot-container {
+    width: 95%;
+    right: 2.5%;
+    bottom: 60px;
+  }
+  
+  .chatbot-toggle-button {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+}
+
+/* Transiciones suaves */
+.chatbot-container {
+  transition: all 0.3s ease-in-out;
+}
+
+.chatbot-container.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
 }

@@ -1,18 +1,23 @@
 import PropTypes from 'prop-types';
 import './Card.css';
 
-const Card = (props) => {
-  // Acceder directamente a header y description
-  const { header, description } = props.payload;
-
-  console.log("Props recibidos en Card:", props);  // Log para verificar los props
+const Card = ({ payload }) => {
+  const { header, description, image, type = 'primary' } = payload;
 
   return (
-    <div style={{ height: 270, paddingRight: 30, float: 'left' }}>
-      <div className="card">
+    <div className="card-container">
+      <div className={`card ${type}`}>
+        {image && (
+          <div className="card-image">
+            <img src={image} alt={header} />
+          </div>
+        )}
         <div className="card-content">
           <span className="card-title">{header || 'Sin título'}</span>
           <p>{description || 'Sin descripción'}</p>
+          <button className="card-button">
+            Ver más
+          </button>
         </div>
       </div>
     </div>
@@ -23,6 +28,8 @@ Card.propTypes = {
   payload: PropTypes.shape({
     header: PropTypes.string,
     description: PropTypes.string,
+    image: PropTypes.string,
+    type: PropTypes.oneOf(['primary', 'success', 'warning', 'danger']),
   }).isRequired,
 };
 

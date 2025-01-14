@@ -11,16 +11,20 @@ export default function Chatbot() {
   const welcomeSent = useRef(false);
   const messagesEndRef = useRef(null);
   const isMounted = useRef(true);
+  const [isTyping, setIsTyping] = useState(false);
 
   const toggleChatbot = () => {
     setIsVisible(!isVisible);
+    if (!isVisible && messages.length === 0) {
+      df_text_query("¡Hola! ¿En qué puedo ayudarte hoy?");
+    }
   };
 
   const updateMessages = (newMessage) => {
     setMessages((prevMessages) => {
       const updatedMessages = [...prevMessages, newMessage];
       try {
-        localStorage.setItem('chatMessages', JSON.stringify(updatedMessages)); 
+        localStorage.setItem('chatMessages', JSON.stringify(updatedMessages));
       } catch (error) {
         console.error("Error al guardar los mensajes en localStorage:", error);
       }
@@ -38,6 +42,7 @@ export default function Chatbot() {
 
     updateMessages(says);
     setInput("");
+    setIsTyping(true);
 
     try {
       const res = await axios.post('http://localhost:5000/api/df_text_query', { text: queryText });
@@ -69,27 +74,21 @@ export default function Chatbot() {
             };
             allMessages.push(says);
           } else if (payload.type === 'quick_replies') {
-            const quickReplies = payload.data.map(item => {
-              const text = item.structValue.fields.text.stringValue;
-              const payload = item.structValue.fields.payload?.stringValue ?? text;
-              const link = item.structValue.fields.link?.stringValue ?? "http://www.defaultlink.com";
-              return {
-                title: text,
-                payload: payload,
-                link: link
-              };
-            });
+            const quickReplies = payload.data.map(item => ({
+              title: item.structValue.fields.text.stringValue,
+              payload: item.structValue.fields.payload?.stringValue ?? item.structValue.fields.text.stringValue,
+              link: item.structValue.fields.link?.stringValue ?? "http://www.defaultlink.com"
+            }));
 
             says = {
               speaks: 'bot',
               msg: {
                 quickReplies: quickReplies,
-                text: payload.text // Asegúrate de que `payload.text` contiene "¿Quieres información?"
+                text: payload.text
               }
             };
             allMessages.push(says);
           } else if (payload.type === 'text') {
-            console.log('Payload de texto:', payload.data); // Verificar el contenido del texto
             says = {
               speaks: 'bot',
               msg: {
@@ -101,9 +100,11 @@ export default function Chatbot() {
         });
       }
 
+      setIsTyping(false);
       allMessages.forEach((message) => updateMessages(message));
     } catch (error) {
       console.error('Error al enviar el mensaje', error);
+      setIsTyping(false);
     }
   };
 
@@ -120,60 +121,46 @@ export default function Chatbot() {
   };
 
   useEffect(() => {
-    isMounted.current = true;
-    const savedMessages = localStorage.getItem('chatMessages');
-    if (savedMessages) {
-      try {
-        setMessages(JSON.parse(savedMessages)); 
-      } catch (error) {
-        console.error("Error al parsear los mensajes de localStorage", error);
-      }
-    } else if (!welcomeSent.current) {
-      df_text_query("¡Hola! ¿En qué puedo ayudarte hoy?");
-      welcomeSent.current = true;
-    }
-
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
   return (
-    <div>
-      <button onClick={toggleChatbot} className="chatbot-toggle-button">
-        {isVisible ? 'Cerrar Chatbot' : 'Abrir Chatbot'}
+    <div className="chatbot-wrapper">
+      <button 
+        onClick={toggleChatbot} 
+        className={`chatbot-toggle-button ${isVisible ? 'open' : ''}`}
+        aria-label={isVisible ? 'Cerrar chat de ayuda' : 'Abrir chat de ayuda'}
+      >
+        {isVisible ? (
+          'Cerrar chat'
+        ) : (
+          <>
+            <span className="pulse-dot"></span>
+            ¿Necesitas ayuda?
+          </>
+        )}
       </button>
 
       {isVisible && (
         <div className="chatbot-container">
           <div className="chatbot-box">
             <div className="chatbot-header">
-              <h2>Chatbot</h2>
+              <h2>Asistente Virtual</h2>
             </div>
 
             <div className="chatbot-messages">
-              {messages.map((message, index) => {
-                if (message.msg.payload) {
-                  return (
-                    <div key={index} className="chatbot-message bot">
-                      <div className="cards-container">
-                        {message.msg.payload.map((card, i) => (
-                          <Card key={i} payload={card} />
-                        ))}
-                      </div>
+              {messages.map((message, index) => (
+                <div key={index} className={`chatbot-message ${message.speaks}`}>
+                  {message.msg.payload ? (
+                    <div className="cards-container">
+                      {message.msg.payload.map((card, i) => (
+                        <Card key={i} payload={card} />
+                      ))}
                     </div>
-                  );
-                }
-
-                if (message.msg.quickReplies) {
-                  return (
-                    <div key={index} className="chatbot-message bot">
+                  ) : message.msg.quickReplies ? (
+                    <>
                       <div className="message-text">
                         {message.msg.text && <p>{typeof message.msg.text === 'string' ? message.msg.text : message.msg.text.text}</p>}
                       </div>
@@ -188,31 +175,41 @@ export default function Chatbot() {
                           </button>
                         ))}
                       </div>
-                    </div>
-                  );
-                }
-
-                if (message.msg.text) {
-                  return (
-                    <div key={index} className="chatbot-message bot">
-                      <p>{typeof message.msg.text === 'string' ? message.msg.text : message.msg.text.text}</p>
-                    </div>
-                  );
-                }
-
-                return null;
-              })}
+                    </>
+                  ) : (
+                    <p>{message.msg.text}</p>
+                  )}
+                </div>
+              ))}
+              {isTyping && (
+                <div className="chatbot-message bot typing">
+                  <div className="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
 
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Escribe un mensaje..."
-              className="chatbot-input"
-            />
+            <div className="chatbot-input-container">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Escribe tu mensaje aquí..."
+                className="chatbot-input"
+              />
+              <button 
+                onClick={() => input.trim() && df_text_query(input)}
+                className="chatbot-send-button"
+                disabled={!input.trim()}
+              >
+                Enviar
+              </button>
+            </div>
           </div>
         </div>
       )}

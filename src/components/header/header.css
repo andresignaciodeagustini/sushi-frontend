@@ -1,24 +1,25 @@
-.header {
-    background-color: #333;
-    padding: 1rem;
-  }
+header {
+  background-color: transparent; /* El último valor (0.5) controla la transparencia */
+  padding: 1rem;
+  backdrop-filter: blur(5px); /* Efecto de desenfoque detrás del header */
+}
+
+.nav-list {
+  display: flex;
+  justify-content: space-around;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-list li a {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease; /* Suaviza las transiciones */
+}
+
+.nav-list li a:hover {
   
-  .nav-list {
-    display: flex;
-    justify-content: space-around;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .nav-list li a {
-    color: white;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-  }
-  
-  .nav-list li a:hover {
-    background-color: #555;
-    border-radius: 5px;
-  }
-  
+  border-radius: 5px;
+}
