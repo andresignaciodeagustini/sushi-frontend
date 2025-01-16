@@ -1,6 +1,5 @@
 
 
-/* Contenedor principal */
 .chatbot-wrapper {
   position: fixed;
   bottom: 20px;
@@ -8,7 +7,7 @@
   z-index: 1000;
 }
 
-/* Contenedor del chatbot */
+
 .chatbot-container {
   position: fixed;
   bottom: 80px;
@@ -24,7 +23,6 @@
   z-index: 999;
 }
 
-/* Caja principal del chatbot */
 .chatbot-box {
   height: 100%;
   width: 100%;
@@ -33,7 +31,6 @@
   padding: 10px;
 }
 
-/* Header del chatbot */
 .chatbot-header {
   font-size: 20px;
   font-weight: bold;
@@ -49,7 +46,7 @@
   margin: 0;
 }
 
-/* Contenedor de mensajes */
+
 .chatbot-messages {
   flex-grow: 1;
   overflow-y: auto;
@@ -59,7 +56,7 @@
   gap: 10px;
 }
 
-/* Estilos de los mensajes */
+
 .chatbot-message {
   padding: 8px 12px;
   margin: 5px;
@@ -80,7 +77,7 @@
   align-self: flex-start;
 }
 
-/* Contenedor de input */
+
 .chatbot-input-container {
   display: flex;
   gap: 8px;
@@ -96,7 +93,6 @@
   outline: none;
 }
 
-/* Botón de enviar */
 .chatbot-send-button {
   padding: 8px 16px;
   background-color: #0084ff;
@@ -116,7 +112,7 @@
   cursor: not-allowed;
 }
 
-/* Botón toggle del chatbot */
+
 .chatbot-toggle-button {
   position: fixed;
   bottom: 20px;
@@ -142,7 +138,7 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* Indicador de escritura */
+
 .typing-indicator {
   display: flex;
   gap: 4px;
@@ -165,7 +161,7 @@
   animation-delay: 0.4s;
 }
 
-/* Punto pulsante */
+
 .pulse-dot {
   width: 8px;
   height: 8px;
@@ -186,7 +182,6 @@
   animation: pulse 2s infinite;
 }
 
-/* Quick replies */
 .quick-replies {
   display: flex;
   flex-wrap: wrap;
@@ -209,7 +204,7 @@
   background-color: #0073e6;
 }
 
-/* Animaciones */
+
 @keyframes typing {
   0%, 100% {
     transform: translateY(0);
@@ -230,7 +225,6 @@
   }
 }
 
-/* Scrollbar personalizado */
 .chatbot-messages::-webkit-scrollbar {
   width: 6px;
 }
@@ -249,7 +243,6 @@
   background: #555;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .chatbot-container {
     width: 90%;
@@ -272,7 +265,6 @@
   }
 }
 
-/* Estilos para dispositivos muy pequeños */
 @media (max-width: 480px) {
   .chatbot-container {
     width: 95%;

@@ -5,11 +5,11 @@ const QuickReply = ({ reply, click }) => {
 
   const handleLinkClick = (e) => {
     e.preventDefault();
-    const link = reply?.link; // Usamos el link directamente aquí
+    const link = reply?.link; 
 
     if (link) {
-      // No abrir en una nueva ventana, sino enviar el link al chat
-      click(e, null, null, link);  // Enviamos el link al chat
+      
+      click(e, null, null, link);  
     }
   };
 
@@ -17,11 +17,11 @@ const QuickReply = ({ reply, click }) => {
     <div className="quick-reply">
       {!reply.payload ? (
         reply.link ? (
-          // Si tiene un link, renderizamos un enlace clickable
+          
           <a
             href={reply.link}
             className="quick-reply-link"
-            onClick={handleLinkClick}  // Acción personalizada para enviar el link al chat
+            onClick={handleLinkClick}  
           >
             {replyText}
           </a>
@@ -43,7 +43,7 @@ QuickReply.propTypes = {
   reply: PropTypes.shape({
     text: PropTypes.string.isRequired,
     payload: PropTypes.string,
-    link: PropTypes.string,  // Aseguramos que puede tener un link
+    link: PropTypes.string, 
   }).isRequired,
   click: PropTypes.func.isRequired,
 };

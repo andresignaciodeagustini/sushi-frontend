@@ -21,6 +21,6 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  /* Elimina display: flex y place-items: center */
+
 }
 

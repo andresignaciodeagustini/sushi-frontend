@@ -1,22 +1,24 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import './Chatbot.css';
+import './chatbot.css';
 import Card from '../card/card';
-import QuickReplies from '../quick-replies/QuickReplies';
 
 export default function Chatbot() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isVisible, setIsVisible] = useState(false);
-  const welcomeSent = useRef(false);
-  const messagesEndRef = useRef(null);
-  const isMounted = useRef(true);
   const [isTyping, setIsTyping] = useState(false);
+  const [isInitializing] = useState(false);
+  
+  const messagesEndRef = useRef(null);
 
   const toggleChatbot = () => {
-    setIsVisible(!isVisible);
-    if (!isVisible && messages.length === 0) {
-      df_text_query("¡Hola! ¿En qué puedo ayudarte hoy?");
+    const newVisibleState = !isVisible;
+    setIsVisible(newVisibleState);
+    if (newVisibleState && messages.length === 0) {
+      setTimeout(() => {
+        df_text_query("MenuPrincipal");
+      }, 100);
     }
   };
 
@@ -25,8 +27,8 @@ export default function Chatbot() {
       const updatedMessages = [...prevMessages, newMessage];
       try {
         localStorage.setItem('chatMessages', JSON.stringify(updatedMessages));
-      } catch (error) {
-        console.error("Error al guardar los mensajes en localStorage:", error);
+      } catch {
+        // Manejo silencioso del error
       }
       return updatedMessages;
     });
@@ -40,70 +42,129 @@ export default function Chatbot() {
       }
     };
 
-    updateMessages(says);
+    if (queryText !== "MenuPrincipal") {
+      updateMessages(says);
+    }
+
     setInput("");
     setIsTyping(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/df_text_query', { text: queryText });
-      
-      let allMessages = [];
-      if (res.data.fulfillmentText) {
-        says = {
-          speaks: 'bot',
-          msg: {
-            text: res.data.fulfillmentText
-          }
-        };
-        allMessages.push(says);
+      let sessionId = localStorage.getItem('dialogflowSessionId');
+      if (!sessionId) {
+        sessionId = 'session-' + Math.random().toString(36).substring(7);
+        localStorage.setItem('dialogflowSessionId', sessionId);
       }
 
-      if (res.data.payloads) {
-        res.data.payloads.forEach((payload) => {
-          if (payload.type === 'cards') {
-            const cards = payload.data.map(item => ({
-              header: item.structValue.fields.header.stringValue,
-              description: item.structValue.fields.description.stringValue
-            }));
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/webhook`, {
+        queryInput: {
+          text: {
+            text: queryText,
+            languageCode: 'es'
+          }
+        },
+        sessionId: sessionId
+      });
 
-            says = {
-              speaks: 'bot',
-              msg: {
-                payload: cards
-              }
-            };
-            allMessages.push(says);
-          } else if (payload.type === 'quick_replies') {
-            const quickReplies = payload.data.map(item => ({
-              title: item.structValue.fields.text.stringValue,
-              payload: item.structValue.fields.payload?.stringValue ?? item.structValue.fields.text.stringValue,
-              link: item.structValue.fields.link?.stringValue ?? "http://www.defaultlink.com"
-            }));
+      let allMessages = [];
 
-            says = {
-              speaks: 'bot',
-              msg: {
-                quickReplies: quickReplies,
-                text: payload.text
+      if (res.data.fulfillmentMessages) {
+        res.data.fulfillmentMessages.forEach(message => {
+          if (message.text && message.text.text) {
+            message.text.text.forEach(text => {
+              allMessages.push({
+                speaks: 'bot',
+                msg: {
+                  text: text
+                }
+              });
+            });
+          }
+
+          if (message.payload) {
+            if (message.payload.quick_replies) {
+              allMessages.push({
+                speaks: 'bot',
+                msg: {
+                  quickReplies: message.payload.quick_replies.map(reply => ({
+                    title: reply.text,
+                    payload: reply.payload
+                  })),
+                  text: message.payload.text || "¿Qué te gustaría hacer?"
+                }
+              });
+            }
+            else if (message.payload.fields) {
+              const fields = message.payload.fields;
+              
+              if (fields.type && fields.type.stringValue === 'quick_replies') {
+                try {
+                  const quickReplies = fields.data.listValue.values.map(item => {
+                    const fieldsData = item.structValue.fields.structValue.structValue.fields.fields.structValue.fields;
+                    return {
+                      title: fieldsData.text.structValue.fields.stringValue.stringValue,
+                      payload: fieldsData.payload.structValue.fields.stringValue.stringValue
+                    };
+                  });
+
+                  allMessages.push({
+                    speaks: 'bot',
+                    msg: {
+                      quickReplies: quickReplies,
+                      text: fields.text.stringValue
+                    }
+                  });
+                } catch {
+                  // Manejo silencioso
+                }
               }
-            };
-            allMessages.push(says);
-          } else if (payload.type === 'text') {
-            says = {
-              speaks: 'bot',
-              msg: {
-                text: payload.data
+              else if (fields.type && fields.type.stringValue === 'cards') {
+                const cards = fields.data.listValue.values.map(item => ({
+                  header: item.structValue.fields.header.stringValue,
+                  description: item.structValue.fields.description.stringValue
+                }));
+
+                allMessages.push({
+                  speaks: 'bot',
+                  msg: {
+                    payload: cards
+                  }
+                });
               }
-            };
-            allMessages.push(says);
+            }
+          }
+        });
+      }
+      else if (res.data.messages && Array.isArray(res.data.messages)) {
+        res.data.messages.forEach(message => {
+          allMessages.push({
+            speaks: 'bot',
+            msg: {
+              text: message.speech
+            }
+          });
+        });
+      } 
+      else if (res.data.speech) {
+        allMessages.push({
+          speaks: 'bot',
+          msg: {
+            text: res.data.speech
           }
         });
       }
 
-      setIsTyping(false);
-      allMessages.forEach((message) => updateMessages(message));
-    } catch (error) {
-      console.error('Error al enviar el mensaje', error);
+      setMessages(prevMessages => [...prevMessages, ...allMessages]);
+
+    } catch {
+      const errorMessage = {
+        speaks: 'bot',
+        msg: {
+          text: "Lo siento, hubo un problema al procesar tu solicitud. ¿Podrías intentarlo de nuevo?"
+        }
+      };
+      updateMessages(errorMessage);
+    } finally {
       setIsTyping(false);
     }
   };
@@ -151,37 +212,49 @@ export default function Chatbot() {
             </div>
 
             <div className="chatbot-messages">
-              {messages.map((message, index) => (
-                <div key={index} className={`chatbot-message ${message.speaks}`}>
-                  {message.msg.payload ? (
-                    <div className="cards-container">
-                      {message.msg.payload.map((card, i) => (
-                        <Card key={i} payload={card} />
-                      ))}
-                    </div>
-                  ) : message.msg.quickReplies ? (
-                    <>
-                      <div className="message-text">
-                        {message.msg.text && <p>{typeof message.msg.text === 'string' ? message.msg.text : message.msg.text.text}</p>}
-                      </div>
-                      <div className="quick-replies">
-                        {message.msg.quickReplies.map((reply, i) => (
-                          <button
-                            key={i}
-                            onClick={(event) => _handleQuickReplyPayload(event, reply.payload, reply.title)}
-                            className="quick-reply-button"
-                          >
-                            {reply.title}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <p>{message.msg.text}</p>
-                  )}
+              {isInitializing ? (
+                <div className="chatbot-message bot">
+                  <div className="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
                 </div>
-              ))}
-              {isTyping && (
+              ) : (
+                <>
+                  {messages.map((message, index) => (
+                    <div key={index} className={`chatbot-message ${message.speaks}`}>
+                      {message.msg.payload ? (
+                        <div className="cards-container">
+                          {message.msg.payload.map((card, i) => (
+                            <Card key={i} payload={card} />
+                          ))}
+                        </div>
+                      ) : message.msg.quickReplies ? (
+                        <>
+                          <div className="message-text">
+                            {message.msg.text && <p>{typeof message.msg.text === 'string' ? message.msg.text : message.msg.text.text}</p>}
+                          </div>
+                          <div className="quick-replies">
+                            {message.msg.quickReplies.map((reply, i) => (
+                              <button
+                                key={i}
+                                onClick={(event) => _handleQuickReplyPayload(event, reply.payload, reply.title)}
+                                className="quick-reply-button"
+                              >
+                                {reply.title}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <p>{message.msg.text}</p>
+                      )}
+                    </div>
+                  ))}
+                </>
+              )}
+              {isTyping && !isInitializing && (
                 <div className="chatbot-message bot typing">
                   <div className="typing-indicator">
                     <span></span>

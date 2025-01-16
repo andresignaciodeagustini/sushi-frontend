@@ -1,7 +1,7 @@
 header {
-  background-color: transparent; /* El último valor (0.5) controla la transparencia */
+  background-color: transparent; 
   padding: 1rem;
-  backdrop-filter: blur(5px); /* Efecto de desenfoque detrás del header */
+  backdrop-filter: blur(5px); 
 }
 
 .nav-list {
@@ -16,7 +16,7 @@ header {
   color: white;
   text-decoration: none;
   padding: 0.5rem 1rem;
-  transition: all 0.3s ease; /* Suaviza las transiciones */
+  transition: all 0.3s ease; 
 }
 
 .nav-list li a:hover {
