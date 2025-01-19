@@ -1,5 +1,5 @@
 import Header from '../../header/header';
-import contactImage from '../../../assets/img/contact.jpeg'; // Asegúrate de tener una imagen de contacto
+import contactImage from '../../../assets/img/contact.jpeg'; 
 import './contact.css';
 
 export default function Contact() {

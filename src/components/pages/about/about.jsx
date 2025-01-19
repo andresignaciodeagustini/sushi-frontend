@@ -1,6 +1,6 @@
 // about.jsx
 import Header from '../../header/header';
-import aboutImage from '../../../assets/img/about-us.jpg'; // Ajusta la ruta según tu estructura
+import aboutImage from '../../../assets/img/about-us.jpg';
 import './about.css';
 
 export default function About() {

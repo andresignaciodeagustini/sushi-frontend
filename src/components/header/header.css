@@ -94,7 +94,7 @@
   background-color: white;
 }
 
-/* Media query para responsividad */
+
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
@@ -127,7 +127,7 @@
   }
 }
 
-/* Para pantallas muy pequeñas */
+
 @media (max-width: 480px) {
   .logo {
     height: 3em;

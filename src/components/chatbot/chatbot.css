@@ -152,14 +152,14 @@
 }
 
 .quick-reply-button {
-  padding: 2px 12px; /* Añadido padding horizontal */
+  padding: 2px 12px; 
   margin: 4px;
   border-radius: 5px;
   height: 35px;
   background-color: var(--color-orange);
   color: var(--color-white);
-  border: none; /* Eliminado el borde */
-  cursor: pointer; /* Añadido cursor pointer */
+  border: none; 
+  cursor: pointer; 
 }
 
 .quick-reply-button:hover {
