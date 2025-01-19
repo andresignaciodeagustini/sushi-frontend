@@ -1,0 +1,94 @@
+.about-container {
+    padding: 40px 0; /* Quitado el padding lateral */
+    max-width: 100%; /* Ocupa todo el ancho */
+    margin-top: 64px;
+    min-height: calc(100vh - 64px);
+  }
+  
+  body {
+    background-color: #1a1a1a;
+  }
+  
+  .about-content {
+    background-color: rgba(26, 26, 26, 0.9);
+    padding: 0; /* Quitado el padding */
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Distribuye el espacio */
+    border: none; /* Quitado el borde */
+    box-shadow: none; /* Quitada la sombra */
+  }
+  
+  .about-text {
+    flex: 0 0 45%; /* Toma el 45% del espacio */
+    padding-left: 80px; /* Más espacio a la izquierda */
+  }
+  
+  .about-image {
+    flex: 0 0 50%; /* Toma el 50% del espacio */
+    height: 90vh; /* Altura más grande */
+    overflow: hidden; /* Para controlar el desbordamiento de la imagen */
+  }
+  
+  .about-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Mantiene las proporciones cubriendo todo el espacio */
+    object-position: center; /* Centra la imagen */
+  }
+  
+  .about-title {
+    color: #ffffff;
+    font-size: 2.5rem;
+    text-align: left;
+    margin-bottom: 30px;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .about-paragraph {
+    color: #e0e0e0;
+    line-height: 1.8;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    max-width: 90%; /* Controla el ancho máximo del texto */
+  }
+  
+  .about-paragraph strong {
+    color: #ffffff;
+    font-weight: 600;
+  }
+  
+  @media (max-width: 968px) {
+    .about-content {
+      flex-direction: column;
+    }
+  
+    .about-text {
+      flex: 1;
+      padding: 20px;
+      order: 2;
+    }
+  
+    .about-image {
+      flex: 1;
+      height: 50vh;
+      width: 100%;
+      order: 1;
+    }
+  
+    .about-title {
+      text-align: center;
+      font-size: 2rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .about-container {
+      margin-top: 56px;
+    }
+  
+    .about-paragraph {
+      font-size: 1rem;
+    }
+  }

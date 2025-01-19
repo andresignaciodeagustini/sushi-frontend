@@ -208,7 +208,7 @@ export default function Chatbot() {
         <div className="chatbot-container">
           <div className="chatbot-box">
             <div className="chatbot-header">
-              <h2>Asistente Virtual</h2>
+              <h2>Sushi Zen Bot</h2>
             </div>
 
             <div className="chatbot-messages">
