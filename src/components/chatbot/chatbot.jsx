@@ -42,7 +42,7 @@ export default function Chatbot() {
       }
     };
 
-    // Solo actualizar mensajes si no es un comando directo
+
     if (!queryText.startsWith('Menu') && !queryText.startsWith('Consulta') && 
         !queryText.startsWith('Buscar') && !queryText.startsWith('Hacer')) {
       updateMessages(says);
@@ -58,7 +58,6 @@ export default function Chatbot() {
         localStorage.setItem('dialogflowSessionId', sessionId);
       }
 
-      // Para el caso específico de MenuPrincipal
       if (queryText === "MenuPrincipal") {
         const res = await axios.post(`${import.meta.env.VITE_API_URL}/webhook`, {
           queryResult: {
@@ -103,7 +102,7 @@ export default function Chatbot() {
         return;
       }
 
-      // Para el resto de los casos (mensaje normal del usuario)
+
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/webhook`, {
         queryInput: {
           text: {

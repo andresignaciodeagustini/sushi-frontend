@@ -1,92 +1,139 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Modak&family=Tilt+Warp:XROT@45&display=swap');
+
 .about-container {
-    max-width: 100%; 
-    margin-top: 64px;
-    min-height: calc(100vh - 64px);
-  }
+  width: 100%;
+  min-height: 105vh; /* 100vh + 10% extra */
+  margin-top: 64px;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.about-content {
+  width: 100%;
+  display: flex;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.about-text {
+  flex: 1;
+  width: 50%;
+  padding: 40px;
+  background-color: #EBDFAF;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+}
+
+.about-image {
+  flex: 1;
+  width: 50%;
+  height: auto;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
   
-  body {
-    background-color: #1a1a1a;
-  }
-  
+  display: flex; /* Añadido para centrar la imagen */
+  justify-content: center; /* Centrar horizontalmente */
+  align-items: center; /* Centrar verticalmente */
+  padding: 20px; /* Espacio para que la imagen no toque los bordes */
+}
+
+.about-image img {
+  width: 99%; /* Ahora la imagen ocupa el 90% del contenedor */
+  height: 99%; /* Mantener proporción */
+  object-fit: cover;
+  object-position: center;
+  border-radius: 20px; /* Bordes redondeados en los vértices */
+}
+
+
+.about-title {
+  font-family: 'Modak', cursive; /* Añadimos la fuente Modak */
+  color: black;
+  font-size: 2.5rem;
+  text-align: left;
+  margin-bottom: 30px;
+  font-weight: 700;
+  margin-top: 15%;
+}
+
+.about-paragraph {
+  color: black;
+  line-height: 1.8;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  max-width: 90%;
+}
+
+.about-paragraph strong {
+  color: black;
+  font-weight: 600;
+}
+
+.about-button {
+  background-color: #CC8F2F;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Tilt Warp', sans-serif;
+  align-self: center; /* Centra el botón horizontalmente */
+  margin-top: 20px; /* Espacio arriba del botón */
+}
+
+.about-button:hover {
+  background-color: #b47d2a; /* Un tono más oscuro para el efecto hover */
+  transform: scale(1.05); /* Efecto de zoom suave al hover */
+}
+/* Media queries para responsividad */
+@media (max-width: 968px) {
   .about-content {
-    background-color: rgba(26, 26, 26, 0.9);
-    padding: 0; 
-    display: flex;
-    align-items: center;
-    justify-content: space-between; 
-    border: none; 
-    box-shadow: none; 
-  }
-  
-  .about-text {
-    flex: 0 0 45%; 
-    padding-left: 80px; 
-  
-  .about-image {
-    flex: 0 0 50%; 
-    height: 90vh; 
-    overflow: hidden; 
-  }
-  
-  .about-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center; 
-  }
-  
-  .about-title {
-    color: #ffffff;
-    font-size: 2.5rem;
-    text-align: left;
-    margin-bottom: 30px;
-    font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  }
-  
-  .about-paragraph {
-    color: #e0e0e0;
-    line-height: 1.8;
-    margin-bottom: 20px;
-    font-size: 1.1rem;
-    max-width: 90%; 
-  }
-  
-  .about-paragraph strong {
-    color: #ffffff;
-    font-weight: 600;
-  }
-  
-  @media (max-width: 968px) {
-    .about-content {
       flex-direction: column;
-    }
-  
-    .about-text {
-      flex: 1;
-      padding: 20px;
-      order: 2;
-    }
-  
-    .about-image {
-      flex: 1;
-      height: 50vh;
+  }
+
+  .about-text,
+  .about-image {
       width: 100%;
-      order: 1;
-    }
-  
-    .about-title {
+      border: none;
+      border-top: 2px solid black;
+      border-bottom: 2px solid black;
+  }
+
+  .about-text {
+      border-bottom: none;
+  }
+
+  .about-image {
+      height: 50vh;
+  }
+
+  .about-image img {
+      width: 90%;
+      height: 90%;
+  }
+
+  .about-title {
       text-align: center;
       font-size: 2rem;
-    }
   }
-  
-  @media (max-width: 768px) {
-    .about-container {
+  .about-button {
+    margin: 20px auto; /* Centra el botón en móviles */
+    padding: 10px 25px; /* Reduce un poco el padding en móviles */
+    font-size: 1rem;
+}
+}
+
+@media (max-width: 768px) {
+  .about-container {
       margin-top: 56px;
-    }
-  
-    .about-paragraph {
+  }
+
+  .about-paragraph {
       font-size: 1rem;
-    }
-  }}
+  }
+}

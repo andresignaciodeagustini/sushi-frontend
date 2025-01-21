@@ -17,47 +17,6 @@
   padding: 0 2rem;
 }
 
-.logo-container {
-  flex: 0 0 auto;
-}
-
-.logo-container a {
-  display: block;
-  cursor: pointer;
-}
-
-.logo {
-  height: 9em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-  object-fit: contain;
-  display: block;
-}
-
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-  transform: scale(1.05);
-}
-
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
 
 .nav {
   flex: 0 0 auto;
@@ -74,7 +33,7 @@
 }
 
 .nav-list li a {
-  color: white;
+  color: black;
   text-decoration: none;
   padding: 0.5rem 1rem;
   transition: all 0.3s ease;
@@ -101,15 +60,6 @@
     padding: 0 1rem;
   }
 
-  .logo-container {
-    margin-bottom: 1rem;
-  }
-
-  .logo {
-    height: 4em;
-    padding: 1em;
-  }
-
   .nav {
     width: 100%;
     padding-right: 0;
@@ -129,10 +79,7 @@
 
 
 @media (max-width: 480px) {
-  .logo {
-    height: 3em;
-    padding: 0.8em;
-  }
+  
 
   .nav-list {
     gap: 0.5rem;
