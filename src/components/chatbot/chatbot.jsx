@@ -42,7 +42,9 @@ export default function Chatbot() {
       }
     };
 
-    if (queryText !== "MenuPrincipal") {
+    // Solo actualizar mensajes si no es un comando directo
+    if (!queryText.startsWith('Menu') && !queryText.startsWith('Consulta') && 
+        !queryText.startsWith('Buscar') && !queryText.startsWith('Hacer')) {
       updateMessages(says);
     }
 
@@ -56,6 +58,52 @@ export default function Chatbot() {
         localStorage.setItem('dialogflowSessionId', sessionId);
       }
 
+      // Para el caso específico de MenuPrincipal
+      if (queryText === "MenuPrincipal") {
+        const res = await axios.post(`${import.meta.env.VITE_API_URL}/webhook`, {
+          queryResult: {
+            intent: {
+              displayName: "MenuPrincipal"
+            },
+            outputContexts: []
+          }
+        });
+        
+        let allMessages = [];
+
+        if (res.data.fulfillmentMessages) {
+          res.data.fulfillmentMessages.forEach(message => {
+            if (message.text && message.text.text) {
+              message.text.text.forEach(text => {
+                allMessages.push({
+                  speaks: 'bot',
+                  msg: {
+                    text: text
+                  }
+                });
+              });
+            }
+
+            if (message.payload) {
+              allMessages.push({
+                speaks: 'bot',
+                msg: {
+                  quickReplies: message.payload.data.map(reply => ({
+                    title: reply.structValue.fields.text.stringValue,
+                    payload: reply.structValue.fields.payload.stringValue
+                  })),
+                  text: message.payload.text
+                }
+              });
+            }
+          });
+        }
+
+        setMessages(prevMessages => [...prevMessages, ...allMessages]);
+        return;
+      }
+
+      // Para el resto de los casos (mensaje normal del usuario)
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/webhook`, {
         queryInput: {
           text: {
@@ -156,7 +204,8 @@ export default function Chatbot() {
 
       setMessages(prevMessages => [...prevMessages, ...allMessages]);
 
-    } catch {
+    } catch (error) {
+      console.error('Error:', error);
       const errorMessage = {
         speaks: 'bot',
         msg: {
