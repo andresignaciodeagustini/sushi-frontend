@@ -5,7 +5,16 @@
   position: fixed;
   width: 100%;
   top: 0;
+  left: 0; 
+  right: 0;
   z-index: 1000;
+  transition: all 0.3s ease;
+  overflow-x: hidden; 
+}
+
+.header.scrolled {
+  background-color: #EBDFAF;
+  border-bottom: 1px solid black;
 }
 
 .header-content {
@@ -13,15 +22,32 @@
   justify-content: space-between;
   align-items: center;
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 2rem;
+  position: relative;
 }
 
+.logo {
+  color: black;
+  text-decoration: none;
+  font-family: 'Modak', cursive;
+  font-size: 1.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  position: relative; 
+  cursor: pointer;
+}
+
+.scrolled .logo {
+  opacity: 1;
+}
 
 .nav {
   flex: 0 0 auto;
-  margin-left: auto; 
-  padding-right: 2rem; 
+  margin-left: auto;
+  padding-right: 2rem;
+  position: relative;
 }
 
 .nav-list {
@@ -53,15 +79,19 @@
   background-color: white;
 }
 
-
 @media (max-width: 768px) {
   .header-content {
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     padding: 0 1rem;
   }
 
+  .logo {
+    font-size: 1.2rem;
+  }
+
   .nav {
-    width: 100%;
+    width: auto;
     padding-right: 0;
   }
 
@@ -77,16 +107,19 @@
   }
 }
 
-
 @media (max-width: 480px) {
-  
-
   .nav-list {
     gap: 0.5rem;
   }
 
   .nav-list li a {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.85rem;
+    padding: 0.3rem 0.3rem;
+    font-size: 0.65rem;
+   
   }
+  .logo {
+    font-size: 0.7rem;
+    margin-left: -5%;
+  }
+  
 }

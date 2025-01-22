@@ -3,7 +3,7 @@
 
 .about-container {
   width: 100%;
-  min-height: 105vh; /* 100vh + 10% extra */
+  min-height: 105vh; 
   margin-top: 64px;
   display: flex;
   justify-content: center;
@@ -34,23 +34,23 @@
   border-top: 1px solid black;
   border-bottom: 1px solid black;
   
-  display: flex; /* Añadido para centrar la imagen */
-  justify-content: center; /* Centrar horizontalmente */
-  align-items: center; /* Centrar verticalmente */
-  padding: 20px; /* Espacio para que la imagen no toque los bordes */
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  padding: 20px; 
 }
 
 .about-image img {
-  width: 99%; /* Ahora la imagen ocupa el 90% del contenedor */
-  height: 99%; /* Mantener proporción */
+  width: 99%; 
+  height: 99%;
   object-fit: cover;
   object-position: center;
-  border-radius: 20px; /* Bordes redondeados en los vértices */
+  border-radius: 20px; 
 }
 
 
 .about-title {
-  font-family: 'Modak', cursive; /* Añadimos la fuente Modak */
+  font-family: 'Modak', cursive; 
   color: black;
   font-size: 2.5rem;
   text-align: left;
@@ -82,15 +82,15 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: 'Tilt Warp', sans-serif;
-  align-self: center; /* Centra el botón horizontalmente */
-  margin-top: 20px; /* Espacio arriba del botón */
+  align-self: center; 
+  margin-top: 20px; 
 }
 
 .about-button:hover {
-  background-color: #b47d2a; /* Un tono más oscuro para el efecto hover */
-  transform: scale(1.05); /* Efecto de zoom suave al hover */
+  background-color: #b47d2a;
+  transform: scale(1.05); 
 }
-/* Media queries para responsividad */
+
 @media (max-width: 968px) {
   .about-content {
       flex-direction: column;
@@ -122,8 +122,8 @@
       font-size: 2rem;
   }
   .about-button {
-    margin: 20px auto; /* Centra el botón en móviles */
-    padding: 10px 25px; /* Reduce un poco el padding en móviles */
+    margin: 20px auto; 
+    padding: 10px 25px;
     font-size: 1rem;
 }
 }
